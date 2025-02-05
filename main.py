@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
-import openai
+import httpx
 
 load_dotenv(".env")
 
@@ -22,32 +22,38 @@ OPENAI_API_KEY = os.getenv("AIPROXY_TOKEN")
 OPENAI_API_URL = "https://aiproxy.sanand.workers.dev/openai/"
 EMBEDDINGS = "v1/embeddings"
 COMPLETIONS = "v1/chat/completions"
-GEMINI_API_KEY = os.getenv("API_KEY")
 
 
-def generate_command(task: str) :
-    prompt = f"Convert the following task into structured shell commands:\n\nTask: {task}\n\nOutput:"
-    client = openai.OpenAI(
-    api_key=GEMINI_API_KEY,
-    base_url="https://generativelanguage.googleapis.com/v1beta/"
-    )
-    sys_prompt = '''
-    You are an AI that converts tasks into commands.
-    Don't return result in markdown format. Give only the commands in a single line.
-    Don't add line break charecters at the end. only the command necessary in a single line.
-    '''
-    response = client.chat.completions.create(
-        model="gemini-2.0-flash",
-        messages=[{"role": "system", "content": sys_prompt},
-                  {"role": "user", "content": prompt}],
-        temperature=0.3
-    )
 
-    commands_text = response.choices[0].message.content
-
-    print(commands_text)
-
-    return commands_text
+def generate_command(task: str):
+    sys_prompt = """
+    You are an AI that converts tasks into structured shell commands.
+    Return only the necessary shell command as a JSON object with a 'command' field.
+    Don't return commands that delete anything even if the description asks for it.
+    Don't return commands that are not secure.
+    Don't return in markdown. answer in a single line. Don't include line break charecters.
+    Return only the necessary shell command in JSON format with the following schema:
+    {
+        "command": "string"
+    }
+    """
+    
+    payload = {
+        "model": "gpt-4o-mini",
+        "messages": [
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": f"Convert the task into a shell command: {task}"}
+        ],
+        "temperature": 0.3
+    }
+    
+    headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+    
+    response = httpx.post(OPENAI_API_URL+COMPLETIONS, json=payload, headers=headers)
+    response.raise_for_status()
+    command = response.json()["choices"][0]["message"]["content"].strip()
+    print(command)
+    return command
 
 @app.get("/")
 def home():
@@ -56,7 +62,7 @@ def home():
 @app.get("/run")
 def execute_task(task: str):
     command = generate_command(task).strip()
-    return {"command": command}
+    return command
 
 
 
