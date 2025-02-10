@@ -56,7 +56,9 @@ def generate_command(task: str) -> json:
 def execute_command(cmd: str):
     result = subprocess.run([cmd], shell=True, capture_output=True, text=True)
     return result
-
+'''
+fix : executing command doesnt work but response code is 200
+'''
 
 @app.get("/")
 def home():
@@ -65,15 +67,17 @@ def home():
 @app.post("/run")
 async def execute_task(task: str):
     command_json = generate_command(task)
+    print(command_json)
     if command_json["command"] == "":
         raise HTTPException(status_code=400, detail="Invalid task description")
     try:
         result = execute_command(command_json["command"])
-        return Response(status_code=200)
+
+        return result.stdout
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
-
+# fix : somethimes cant read files. maybe problem in file path with /data
 @app.get("/read")
 async def read_file(path: str):
     file_path = Path(path)
@@ -89,3 +93,7 @@ async def read_file(path: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+# confuses uv as uvicorn
+# cant use llm
+# give detailed system prompt on the given tasks

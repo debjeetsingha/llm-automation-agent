@@ -1,24 +1,18 @@
-FROM python:3.13-slim-bookworm
+FROM python:3.13-slim
 
-# The installer requires curl (and certificates) to download the release archive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
-
-# Download the latest installer
-ADD https://astral.sh/uv/0.5.29/install.sh /uv-installer.sh
-
-# Run the installer then remove it
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# Ensure the installed binary is on the `PATH`
-ENV PATH="/root/.local/bin/:$PATH"
-
-# Copy the project into the image
-ADD . /app
-
-# Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
-RUN uv sync --frozen --no-dev
+
+COPY . /app/
+
+RUN apt-get update && apt-get install -y 
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["uv", "run", "main.py"]
+# Run the FastAPI application by default
+# Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
+# Uses `--host 0.0.0.0` to allow access from outside the container
+# CMD ["fastapi", "run", "--host", "127.0.0.1", "main.py","--port", "8000"]
+
+CMD ["uvicorn", "main:app" ,"--host" ,"127.0.0.1" ,"--port" ,"8000"]
