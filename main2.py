@@ -7,8 +7,6 @@ from dotenv import load_dotenv
 from pathlib import Path
 import subprocess
 import json
-from typing import Dict, Any, Optional
-
 
 load_dotenv(".env")
 
@@ -33,7 +31,7 @@ app.add_middleware(
 class CommandResponse(BaseModel):
     command: str
 
-def generate_command(task: str) -> json:
+def generate_command(task: str) -> dict:
     sys_prompt = """
     You are an AI that converts tasks into structured, safe shell commands.
     You are running inside docker. The tools may not be present. Check and install it before running the command if it doesn't exits.
@@ -42,9 +40,7 @@ def generate_command(task: str) -> json:
     - Always ensure uv means the package manager and not uvicorn.
     - Return commands only in JSON format with a 'command' key.
     - If the task is invalid, return an empty command string.
-    - The tasks may be in a differnt language.
     """
-    
 
     llm_tool_schema = {
     "type": "function",
@@ -72,34 +68,31 @@ def generate_command(task: str) -> json:
         tool_choice="auto",  # Let OpenAI decide when to use the tool
     )
     
-    command_response = response.choices[0].message.parsed
-    return command_response.model_dump()
+    try:
+        command_response = json.loads(response.choices[0].message.content)
+        return command_response if "command" in command_response else {"command": ""}
+    except json.JSONDecodeError:
+        return {"command": ""}
 
 def execute_command(cmd: str):
-    result = subprocess.run([cmd], shell=True, capture_output=True, text=True)
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     return result
-'''
-fix : executing command doesnt work but response code is 200
-'''
 
 @app.get("/")
 def home():
-    return {"hello": "world"}
+    return {"message": "AI Task Agent is running"}
 
 @app.post("/run")
 async def execute_task(task: str):
     command_json = generate_command(task)
-    print(command_json)
-    if command_json["command"] == "":
+    if not command_json["command"]:
         raise HTTPException(status_code=400, detail="Invalid task description")
     try:
         result = execute_command(command_json["command"])
-
-        return result.stdout
+        return {"output": result.stdout, "error": result.stderr}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
-# fix : somethimes cant read files. maybe problem in file path with /data
 @app.get("/read")
 async def read_file(path: str):
     file_path = Path("/data") / Path(path).name  # Ensuring correct file path
@@ -110,12 +103,19 @@ async def read_file(path: str):
             return Response(content=f.read(), media_type="text/plain")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
-    
-    
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
 
-# confuses uv as uvicorn
-# cant use llm
-# give detailed system prompt on the given tasks
+
+
+'''
+DOES NOT INSTALL UV - INAVLID REQUEST
+
+why response body :
+{
+  "output": "",
+  "error": "/bin/sh: 1: uv: not found\n"
+}
+'''
