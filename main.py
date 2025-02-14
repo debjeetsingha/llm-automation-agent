@@ -43,6 +43,7 @@ def generate_command(task: str) -> json:
     - Return commands only in JSON format with a 'command' key.
     - If the task is invalid, return an empty command string.
     - The tasks may be in a differnt language.
+    - 
     """
     
 
