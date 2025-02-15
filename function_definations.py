@@ -14,12 +14,6 @@ class InstallAndRunDatagen(BaseModel):
     email: str = Field(..., description="The email that is passed as the argument")
 
 
-# class FormatMarkdownUsingPrettier(BaseModel):
-#     """Model for formatting a Markdown file using Prettier."""
-#     file_path: str = Field(..., description="Path to the Markdown file to be formatted.")
-#     prettier_version: str = Field(..., description="Version of Prettier to use for formatting. Return Example: 3.4.2 ")
-
-
 class CountTheNumberofDaysAndSave(BaseModel):
     day: str = Field(..., description="Name of the day")
     input_file: str = Field(
@@ -30,7 +24,6 @@ class CountTheNumberofDaysAndSave(BaseModel):
     )
 
 
-# maybe changed to sort files
 class SortContacts(BaseModel):
     input_file: str = Field(
         ..., description="Path to the JSON file containing contacts."
@@ -43,7 +36,6 @@ class SortContacts(BaseModel):
     )
 
 
-# maybe changed to handle other extension as well
 class WriteRecentLogs(BaseModel):
     directory: str = Field(
         ..., description="Path to the directory containing log files."
@@ -60,7 +52,6 @@ class WriteRecentLogs(BaseModel):
     )
 
 
-# List
 class GenerateMarkdownIndex(BaseModel):
     directory: str = Field(
         ..., description="Path to the directory containing Markdown files."
@@ -73,7 +64,6 @@ class GenerateMarkdownIndex(BaseModel):
     )
 
 
-# maybe changed to pass general text to llm
 class ExtractUsingLLM(BaseModel):
     input_file: str = Field(
         ..., description="Path to the file containing the text to be processed."
@@ -134,20 +124,6 @@ class CalculateTotalTicketSales(BaseModel):
     )
 
 
-# class FetchDataFromAPI(BaseModel):
-#     """Model for fetching data from an API and saving it to a file."""
-#     api_url: str = Field(..., description="The URL of the API to fetch data from.")
-#     output_file: str = Field(..., description="Path to the file to save the fetched data.")
-
-
-# class CloneGitRepoAndCommit(BaseModel):
-#     """Model for cloning a Git repository and making a commit."""
-#     repo_url: str = Field(..., description="The URL of the Git repository to clone.")
-#     commit_message: str = Field(..., description="The commit message for the changes.")
-#     file_path: Optional[str] = Field(None, description="Path to the file to modify before committing.")
-#     file_content: Optional[str] = Field(None, description="Content to write to the file before committing.")
-
-
 class RunSQLQuery(BaseModel):
     database_file: str = Field(
         ..., description="Path to the SQLite or DuckDB database file."
@@ -166,50 +142,11 @@ class RunSQLQuery(BaseModel):
     )
 
 
-# class ExtractDataFromWebsite(BaseModel):
-#     """Model for extracting data from (i.e. scraping) a website."""
-#     website_url: str = Field(..., description="The URL of the website to scrape.")
-#     output_file: str = Field(..., description="Path to the file to save the scraped data.")
-#     css_selector: Optional[str] = Field(None, description="CSS selector to target specific elements (optional).")
-
-
-# class CompressOrResizeImage(BaseModel):
-#     """Model for compressing or resizing an image."""
-#     input_image: str = Field(..., description="Path to the input image file.")
-#     output_image: str = Field(..., description="Path to the output image file.")
-#     width: Optional[int] = Field(None, description="Target width for resizing (optional).")
-#     height: Optional[int] = Field(None, description="Target height for resizing (optional).")
-#     quality: Optional[int] = Field(None, description="Quality level for compression (1-100, optional).")
-
-
-# class TranscribeAudio(BaseModel):
-#     """Model for transcribing audio from an MP3 file."""
-#     audio_file: str = Field(..., description="Path to the MP3 audio file to transcribe.")
-#     output_file: str = Field(..., description="Path to the file to save the transcription text.")
-
-
-# class ConvertMarkdownToHTML(BaseModel):
-#     """Model for converting Markdown to HTML."""
-#     markdown_file: str = Field(..., description="Path to the Markdown file to convert.")
-#     output_file: str = Field(..., description="Path to the file to save the converted HTML.")
-
-
-# class WriteAPIEndpointForCSVFilter(BaseModel):
-#     """Model for writing an API endpoint that filters a CSV file and returns JSON data."""
-#     csv_file: str = Field(..., description="Path to the CSV file to filter.")
-#     filter_column: str = Field(..., description="The column name to filter data on.")
-#     filter_value: str = Field(..., description="The value to filter the column by.")
-#     output_file: Optional[str] = Field(None, description="Path to save the filtered JSON data (optional).")
-
-
 class Execute_shell_command(BaseModel):
     command: str = Field(..., description="Shell commnands to execute in the terminal")
 
 
 tools = [
-    # A
-    # pydantic_function_tool(InstallAndRunDatagen),
-    # pydantic_function_tool(FormatMarkdownUsingPrettier),
     pydantic_function_tool(CountTheNumberofDaysAndSave),
     pydantic_function_tool(SortContacts),
     pydantic_function_tool(WriteRecentLogs),
@@ -217,16 +154,7 @@ tools = [
     pydantic_function_tool(ExtractUsingLLM),
     pydantic_function_tool(ExtractTextFromImageUsingLLM),
     pydantic_function_tool(FindMostSimilarTextsUsingEmbeddings),
-    # pydantic_function_tool(CalculateTotalTicketSales),
-    # B
-    # pydantic_function_tool(FetchDataFromAPI),
-    # pydantic_function_tool(CloneGitRepoAndCommit),
     pydantic_function_tool(RunSQLQuery),
-    # pydantic_function_tool(ExtractDataFromWebsite),
-    # pydantic_function_tool(CompressOrResizeImage),
-    # pydantic_function_tool(TranscribeAudio),
-    # pydantic_function_tool(ConvertMarkdownToHTML),
-    # pydantic_function_tool(WriteAPIEndpointForCSVFilter),
-    # Very important and dangerous
+    # Very dangerous
     pydantic_function_tool(Execute_shell_command),
 ]

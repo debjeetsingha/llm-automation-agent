@@ -1,20 +1,25 @@
-# Use a Python base image
 FROM python:3.13-slim-bookworm
 
-# Create data directory and set permissions
+
 RUN mkdir -p /data
 RUN chmod -R 777 /data
 
 WORKDIR /app
-# Install Node.js, npm, and npx
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates imagemagick git && \
+    build-essential \
+    libffi-dev \
+    zlib1g-dev \
+    libssl-dev \
+    python3-dev \
+    python3-wheel \
+    curl ca-certificates imagemagick git ffmpeg && \
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm npx && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install nvm (optional, if needed)
+
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 
 

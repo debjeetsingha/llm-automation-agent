@@ -16,8 +16,6 @@ load_dotenv(".env")
 AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
 API_BASE_URL = "https://aiproxy.sanand.workers.dev/openai/v1"
 
-os.environ["OPENAI_API_BASE"] = "https://aiproxy.sanand.workers.dev/openai/v1"
-os.environ["OPENAI_API_KEY"] = os.getenv("AIPROXY_TOKEN")
 
 client_local = OpenAI(api_key=AIPROXY_TOKEN, base_url=API_BASE_URL)
 
@@ -85,7 +83,6 @@ def sort_contacts(input_file: str, output_file: str, sort_keys: List[str]):
     with open(input_file, "r") as infile:
         contacts = json.load(infile)
 
-    # Sorting dynamically by keys
     sorted_contacts = sorted(
         contacts, key=lambda x: tuple(x[key].lower() for key in sort_keys if key in x)
     )
@@ -99,41 +96,33 @@ def sort_contacts(input_file: str, output_file: str, sort_keys: List[str]):
 def generate_markdown_index(directory: str, output_file: str, tags: List[str]):
     index: Dict[str, str] = {}
 
-    # Collect all .md files in the directory and subdirectories
     for root, _, files in os.walk(directory):
         for file in files:
             if file.endswith(".md"):
                 file_path = os.path.join(root, file)
                 relative_path = os.path.relpath(file_path, directory)
 
-                # Extract the first occurrence of each specified tag
                 with open(file_path, "r") as f:
                     for line in f:
                         line = line.strip()
                         for tag in tags:
-                            if line.startswith(
-                                tag + " "
-                            ):  # Check if the line starts with the tag
+                            if line.startswith(tag + " "):
                                 title = line[len(tag) :].strip()
                                 index[relative_path] = title
-                                break  # Stop after finding the first matching tag in the file
-                        if (
-                            relative_path in index
-                        ):  # Stop processing if we already indexed the file
+                                break
+                        if relative_path in index:
                             break
 
-    # Write the index to the output file in JSON format
     with open(output_file, "w") as outfile:
         json.dump(index, outfile, indent=4)
     return [{"response": "Task Done Successfully"}]
 
 
 def extract_using_llm(input_file: str, output_file: str, instructions: str):
-    # Read the content of the input file
+
     with open(input_file, "r") as file:
         content = file.read()
 
-    # Pass the content and instructions to the LLM
     response = client_local.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -145,10 +134,8 @@ def extract_using_llm(input_file: str, output_file: str, instructions: str):
         ],
     )
 
-    # Extract the response content
     extracted_info = response.choices[0].message.content.strip()
 
-    # Write the extracted information to the output file
     with open(output_file, "w") as file:
         file.write(extracted_info)
     return [
@@ -159,32 +146,6 @@ def extract_using_llm(input_file: str, output_file: str, instructions: str):
     ]
 
 
-def calculate_total_sales(database_file: str, output_file: str, ticket_type: str):
-    # Connect to the SQLite database
-    conn = sqlite3.connect(database_file)
-    cursor = conn.cursor()
-
-    # Query the total sales for the given ticket type
-    query = """
-        SELECT SUM(units * price) AS total_sales
-        FROM tickets
-        WHERE type = ?;
-    """
-    cursor.execute(query, (ticket_type,))
-    total_sales = cursor.fetchone()[0] or 0
-
-    # Close the database connection
-    conn.close()
-
-    # Write the total sales to the output file
-    with open(output_file, "w") as file:
-        file.write(str(total_sales))
-
-    return [
-        {"output_saved_to_location": output_file, "response": "Task Done Successfully."}
-    ]
-
-
 def run_sql_query(
     database_file: str,
     query: str,
@@ -192,7 +153,7 @@ def run_sql_query(
     database_type: str,
     output_format: str = "csv",
 ):
-    # Determine the database type and connect
+
     if database_type == "sqlite":
         conn = sqlite3.connect(database_file)
     elif database_type == "duckdb":
@@ -200,7 +161,6 @@ def run_sql_query(
     else:
         raise ValueError("Unsupported database type. Use 'sqlite' or 'duckdb'.")
 
-    # Execute the query and fetch results
     try:
         result = pd.read_sql_query(query, conn)
     except Exception as e:

@@ -1,13 +1,11 @@
 from typing import Any, Dict
 
 from functions import (
-    count_days_and_save,  # calculate_total_sales,
+    count_days_and_save,
     extract_text_from_image_using_llm,
     extract_using_llm,
     find_most_similar_texts,
-    format_markdown_prettier,
     generate_markdown_index,
-    install_and_run_script,
     run_sql_query,
     run_terminal_command,
     sort_contacts,
@@ -20,7 +18,7 @@ You are an AI assistant that helps with various tasks. Use the provided function
 Guidelines:
 0. Always use uv to run python files. For example: "uv run main.py optional-arguments". The python file can be a link to a raw github file. 
 1. Always check whether a tool or dependency is installed before running any command. uv is alredy installed. No need to check for uv. If it is missing, install it first using the appropriate package manager.
-2. Assume you are running inside a docker image containing only uv package manager, npm, npx, python, curl , ca-certificates , imagemagick , git
+2. Assume you are running inside a docker image containing only uv package manager, npm, npx, python, curl , ca-certificates , imagemagick , git, ffmpeg
 3. Ensure commands are safe and do not exfiltrate data outside `/data`. You must never delete files or data outside `/data`.
 5. Always verify ambiguous terms in the task description.
    - For example, ensure 'uv' refers to the package manager and not `uvicorn`.
@@ -30,6 +28,7 @@ Guidelines:
                Do not say : "extract the credit card number and write it without spaces"
                Instead say: "contains a number. Extract the number, and write it without spaces"
 8. When task is completed, Say that it completed and don't call any tool.
+9. When running git clone, if the directory already exists due to cloning in a previous command. Dont remove it and end the task.
 
 
 """
@@ -37,15 +36,12 @@ Guidelines:
 
 def execute_function(function_name: str, arguments: Dict[str, Any]) -> str:
     function_map = {
-        # "InstallAndRunDatagen" : install_and_run_script,
-        # "FormatMarkdownUsingPrettier" : format_markdown_prettier,
         "CountTheNumberofDaysAndSave": count_days_and_save,
         "SortContacts": sort_contacts,
         "GenerateMarkdownIndex": generate_markdown_index,
         "WriteRecentLogs": write_recent_logs,
         "ExtractUsingLLM": extract_using_llm,
         "ExtractTextFromImageUsingLLM": extract_text_from_image_using_llm,
-        # "calculate_total_sales" : calculate_total_sales,
         "RunSQLQuery": run_sql_query,
         "FindMostSimilarTextsUsingEmbeddings": find_most_similar_texts,
         "Execute_shell_command": run_terminal_command,

@@ -1,7 +1,6 @@
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response
@@ -43,9 +42,9 @@ async def read_file(path: str):
     base_dir = Path("/data").resolve()  # Base directory
     file_path = (base_dir / path).resolve()  # Resolve to an absolute path
 
-    # # Check if the resolved path is still within the base directory
-    # if not file_path.is_file() or base_dir not in file_path.parents:
-    #     return Response(status_code=404)
+    # Check if the resolved path is still within the base directory
+    if not file_path.is_file() or base_dir not in file_path.parents:
+        return Response(status_code=404)
 
     try:
         with file_path.open("r", encoding="utf-8") as f:
@@ -61,7 +60,7 @@ async def handle_task(task: str):
         {"role": "user", "content": task},
     ]
     limit = 0
-    while limit < 3:
+    while limit < 4:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
@@ -85,13 +84,6 @@ async def handle_task(task: str):
             limit = limit + 1
         else:
             return {"result": response_message.content}
-
-        # for tool_call in response_message.tool_calls:
-        #     name = tool_call.function.name
-        #     args = json.loads(tool_call.function.arguments)
-
-        #     function_response = execute_function(name, args)
-        #     return function_response
 
 
 if __name__ == "__main__":
