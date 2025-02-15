@@ -60,7 +60,7 @@ async def handle_task(task: str):
         {"role": "user", "content": task},
     ]
     limit = 0
-    while limit < 6:
+    while limit < 4:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
