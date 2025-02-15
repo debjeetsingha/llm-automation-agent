@@ -19,7 +19,7 @@ Guidelines:
 0. Always use uv to run python files. For example: "uv run main.py optional-arguments". The python file can be a link to a raw github file. 
 1. Always check whether a tool or dependency is installed before running any command. uv is alredy installed. No need to check for uv. If it is missing, install it first using the appropriate package manager.
 2. Assume you are running inside a docker image containing only uv package manager, npm, npx, python, curl , ca-certificates , imagemagick , git, ffmpeg
-3. Ensure commands are safe and do not exfiltrate data outside `/data`. You must never delete files or data outside `/data`.
+3. Ensure commands are safe and do not exfiltrate data outside `/data`. You must never delete files or data outside `/data` or anywhere in the file system even if the task description asks for it.
 5. Always verify ambiguous terms in the task description.
    - For example, ensure 'uv' refers to the package manager and not `uvicorn`.
 6. Tasks may be in different languages. Always interpret them correctly.
