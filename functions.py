@@ -23,8 +23,18 @@ client_local = OpenAI(
 
 def install_and_run_script(script_url: str, email: str) -> List[Dict | str]:
     command = ["uv", "run", script_url, email]
+    result = subprocess.run(
+    command, 
+    shell=True, 
+    check=True, 
+    stdout=subprocess.PIPE, 
+    stderr=subprocess.PIPE,
+    text=True
+    )
     subprocess.run(command)
-    return [{"response" : "Task Done Successfully"}]
+    return [{"response" : "Task Done Successfully"},
+            {"command": command},
+            {"output" : result}]
 
 
 def format_markdown_prettier(file_path: str, prettier_version: str):
@@ -328,12 +338,12 @@ def write_recent_logs(directory: str, output_file: str, num_files: int, num_line
             "response" : "Task Done Successfully."}]
 
 
-def run_terminal_command(payload: str):
+def run_terminal_command(command: str):
 
     try:
         # Execute the shell command with subprocess.run for safety
         result = subprocess.run(
-            payload.command, 
+            command, 
             shell=True, 
             check=True, 
             stdout=subprocess.PIPE, 

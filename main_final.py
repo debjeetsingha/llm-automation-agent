@@ -40,9 +40,9 @@ async def read_file(path: str):
     base_dir = Path("/data").resolve()  # Base directory
     file_path = (base_dir / path).resolve()  # Resolve to an absolute path
 
-    # Check if the resolved path is still within the base directory
-    if not file_path.is_file() or base_dir not in file_path.parents:
-        return Response(status_code=404)
+    # # Check if the resolved path is still within the base directory
+    # if not file_path.is_file() or base_dir not in file_path.parents:
+    #     return Response(status_code=404)
     
     try:
         with file_path.open("r", encoding="utf-8") as f:
@@ -56,8 +56,8 @@ async def handle_task(task: str):
     {"role": "system", "content": system_prompt},
     {"role": "user", "content": task}
     ]
-
-    while True:
+    limit = 0
+    while limit<3:
         response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
@@ -66,26 +66,31 @@ async def handle_task(task: str):
         parallel_tool_calls=False,
         )
         response_message = response.choices[0].message
-        # if response_message.tool_calls:
-        #     for tool_call in response_message.tool_calls:
-        #         name = tool_call.function.name
-        #         args = json.loads(tool_call.function.arguments)
-                
-        #         function_response = execute_function(name, args)
-                
-        #         messages.append({
-        #             "role": "system",
-        #             "content": str(function_response)
-        #         })
-        # else:
-        #     return {"result": response_message.content}
+        if response_message.tool_calls:
+            for tool_call in response_message.tool_calls:
+                name = tool_call.function.name
+                args = json.loads(tool_call.function.arguments)
+                print("--------")
+                print(name, args)
+                print("--------")               
+                function_response = execute_function(name, args)
+                print("--------")
+                print(function_response)
+                print("--------")
+                messages.append({
+                    "role": "system",
+                    "content": str(function_response)
+                })
+            limit = limit+1
+        else:
+            return {"result": response_message.content}
 
-        for tool_call in response_message.tool_calls:
-            name = tool_call.function.name
-            args = json.loads(tool_call.function.arguments)
+        # for tool_call in response_message.tool_calls:
+        #     name = tool_call.function.name
+        #     args = json.loads(tool_call.function.arguments)
             
-            function_response = execute_function(name, args)
-            return function_response
+        #     function_response = execute_function(name, args)
+        #     return function_response
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)

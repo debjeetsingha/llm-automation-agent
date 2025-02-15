@@ -13,10 +13,10 @@ class InstallAndRunDatagen(BaseModel):
         description="The email that is passed as the argument"
     )
 
-class FormatMarkdownUsingPrettier(BaseModel):
-    """Model for formatting a Markdown file using Prettier."""
-    file_path: str = Field(..., description="Path to the Markdown file to be formatted.")
-    prettier_version: str = Field(..., description="Version of Prettier to use for formatting. Return Example: 3.4.2 ")
+# class FormatMarkdownUsingPrettier(BaseModel):
+#     """Model for formatting a Markdown file using Prettier."""
+#     file_path: str = Field(..., description="Path to the Markdown file to be formatted.")
+#     prettier_version: str = Field(..., description="Version of Prettier to use for formatting. Return Example: 3.4.2 ")
 
 
 class CountTheNumberofDaysAndSave(BaseModel):
@@ -143,8 +143,8 @@ class Execute_shell_command(BaseModel):
 
 tools = [
     # A
-    pydantic_function_tool(InstallAndRunDatagen),
-    pydantic_function_tool(FormatMarkdownUsingPrettier),
+    # pydantic_function_tool(InstallAndRunDatagen),
+    # pydantic_function_tool(FormatMarkdownUsingPrettier),
     pydantic_function_tool(CountTheNumberofDaysAndSave),
     pydantic_function_tool(SortContacts),
     pydantic_function_tool(WriteRecentLogs),
@@ -152,7 +152,7 @@ tools = [
     pydantic_function_tool(ExtractUsingLLM),
     pydantic_function_tool(ExtractTextFromImageUsingLLM),
     pydantic_function_tool(FindMostSimilarTextsUsingEmbeddings),
-    pydantic_function_tool(CalculateTotalTicketSales),    
+    # pydantic_function_tool(CalculateTotalTicketSales),    
     # B
     # pydantic_function_tool(FetchDataFromAPI),
     # pydantic_function_tool(CloneGitRepoAndCommit),

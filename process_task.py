@@ -8,7 +8,7 @@ from functions import (
     generate_markdown_index,
     extract_using_llm,
     extract_text_from_image_using_llm,
-    calculate_total_sales,
+    # calculate_total_sales,
     run_sql_query,
     find_most_similar_texts,
     write_recent_logs,
@@ -19,7 +19,8 @@ system_prompt = """
 You are an AI assistant that helps with various tasks. Use the provided functions to complete the user's request.
 
 Guidelines:
-1. Always check whether a tool or dependency is installed before running any command. If it is missing, install it first using the appropriate package manager.
+0. Always use uv to run python files. For example: "uv run main.py optional-arguments". The python file can be a link to a raw github file. 
+1. Always check whether a tool or dependency is installed before running any command. uv is alredy installed. No need to check for uv. If it is missing, install it first using the appropriate package manager.
 2. Assume you are running inside a docker image containing only uv package manager, npm, npx, python, curl , ca-certificates , imagemagick , git
 3. Ensure commands are safe and do not exfiltrate data outside `/data`. You must never delete files or data outside `/data`.
 5. Always verify ambiguous terms in the task description.
@@ -36,15 +37,15 @@ Guidelines:
 
 def execute_function(function_name: str, arguments: Dict[str, Any]) -> str:
     function_map = {
-    "InstallAndRunDatagen" : install_and_run_script,
-    "FormatMarkdownUsingPrettier" : format_markdown_prettier,
+    # "InstallAndRunDatagen" : install_and_run_script,
+    # "FormatMarkdownUsingPrettier" : format_markdown_prettier,
     "CountTheNumberofDaysAndSave" : count_days_and_save,
     "SortContacts" : sort_contacts,
     "GenerateMarkdownIndex" : generate_markdown_index,
     "WriteRecentLogs": write_recent_logs,
     "ExtractUsingLLM" : extract_using_llm,
     "ExtractTextFromImageUsingLLM" : extract_text_from_image_using_llm,
-    "calculate_total_sales" : calculate_total_sales,
+    # "calculate_total_sales" : calculate_total_sales,
     "RunSQLQuery" : run_sql_query,
     "FindMostSimilarTextsUsingEmbeddings" : find_most_similar_texts,
     "Execute_shell_command" : run_terminal_command
