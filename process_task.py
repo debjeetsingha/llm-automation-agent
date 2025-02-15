@@ -1,18 +1,17 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 from functions import (
-    install_and_run_script,
-    format_markdown_prettier,
-    count_days_and_save,
-    sort_contacts,
-    generate_markdown_index,
-    extract_using_llm,
+    count_days_and_save,  # calculate_total_sales,
     extract_text_from_image_using_llm,
-    # calculate_total_sales,
-    run_sql_query,
+    extract_using_llm,
     find_most_similar_texts,
+    format_markdown_prettier,
+    generate_markdown_index,
+    install_and_run_script,
+    run_sql_query,
+    run_terminal_command,
+    sort_contacts,
     write_recent_logs,
-    run_terminal_command
 )
 
 system_prompt = """ 
@@ -35,23 +34,24 @@ Guidelines:
 
 """
 
+
 def execute_function(function_name: str, arguments: Dict[str, Any]) -> str:
     function_map = {
-    # "InstallAndRunDatagen" : install_and_run_script,
-    # "FormatMarkdownUsingPrettier" : format_markdown_prettier,
-    "CountTheNumberofDaysAndSave" : count_days_and_save,
-    "SortContacts" : sort_contacts,
-    "GenerateMarkdownIndex" : generate_markdown_index,
-    "WriteRecentLogs": write_recent_logs,
-    "ExtractUsingLLM" : extract_using_llm,
-    "ExtractTextFromImageUsingLLM" : extract_text_from_image_using_llm,
-    # "calculate_total_sales" : calculate_total_sales,
-    "RunSQLQuery" : run_sql_query,
-    "FindMostSimilarTextsUsingEmbeddings" : find_most_similar_texts,
-    "Execute_shell_command" : run_terminal_command
+        # "InstallAndRunDatagen" : install_and_run_script,
+        # "FormatMarkdownUsingPrettier" : format_markdown_prettier,
+        "CountTheNumberofDaysAndSave": count_days_and_save,
+        "SortContacts": sort_contacts,
+        "GenerateMarkdownIndex": generate_markdown_index,
+        "WriteRecentLogs": write_recent_logs,
+        "ExtractUsingLLM": extract_using_llm,
+        "ExtractTextFromImageUsingLLM": extract_text_from_image_using_llm,
+        # "calculate_total_sales" : calculate_total_sales,
+        "RunSQLQuery": run_sql_query,
+        "FindMostSimilarTextsUsingEmbeddings": find_most_similar_texts,
+        "Execute_shell_command": run_terminal_command,
     }
 
     if function_name not in function_map:
         raise ValueError(f"Unknown function: {function_name}")
-    
+
     return function_map[function_name](**arguments)
