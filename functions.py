@@ -244,7 +244,7 @@ def find_most_similar_texts(
 
 
 def extract_text_from_image_using_llm(
-    input_image: str, query: str, output_file: Optional[str] = None
+    input_image: str, query: str, output_file: Optional[str] = None, image_format: str = "jpeg"
 ) -> str:
     """
     Extracts specific information from an image using an LLM based on the provided query.
@@ -252,13 +252,22 @@ def extract_text_from_image_using_llm(
     :param input_image: Path to the image file.
     :param query: Query specifying what to extract from the image.
     :param output_file: (Optional) Path to the file to write the extracted text. If None, no file is written.
+    :param image_format: Format of the image (e.g., "jpeg", "png"). Defaults to "jpeg".
     :return: Extracted text as a string.
     """
+    # Validate image format
+    supported_formats = ["jpeg", "png", "webp"]
+    if image_format.lower() not in supported_formats:
+        raise ValueError(f"Unsupported image format: {image_format}. Supported formats are: {supported_formats}")
+
     # Convert the image to base64 (LLMs often accept images in base64 encoding for APIs)
     import base64
 
     with open(input_image, "rb") as image_file:
         image_base64 = base64.b64encode(image_file.read()).decode("utf-8")
+
+    # Set the MIME type based on the image format
+    mime_type = f"image/{image_format.lower()}"
 
     # Query the LLM
     try:
@@ -267,9 +276,7 @@ def extract_text_from_image_using_llm(
             messages=[
                 {
                     "role": "system",
-                    "content": """You are a helpful assistant that extracts information from images.
-
-                                                """,
+                    "content": "You are a helpful assistant that extracts information from images.",
                 },
                 {
                     "role": "user",
@@ -278,7 +285,7 @@ def extract_text_from_image_using_llm(
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}",
+                                "url": f"data:{mime_type};base64,{image_base64}",
                             },
                         },
                     ],
@@ -363,3 +370,43 @@ def run_terminal_command(command: str):
     except Exception as e:
         # Handle other unexpected exceptions
         return [{"status": "error", "output": None, "error": str(e)}]
+    
+
+def commit_to_git_repo(commit_message: str, path_to_repo: str):
+    """
+    Commit changes to the specified Git repository.
+
+    :param commit_message: Commit message to use.
+    :param path_to_repo: Path to the local Git repository.
+    """
+    try:
+        # Navigate to the repository directory
+        if not os.path.exists(path_to_repo):
+            return (f"The repository path '{path_to_repo}' does not exist.")
+        
+        # Check if it's a valid git repository
+        if not os.path.exists(os.path.join(path_to_repo, ".git")):
+            return (f"The path '{path_to_repo}' is not a valid git repository.")
+
+        # Stage all changes
+        subprocess.run(["git", "add", "."], cwd=path_to_repo, check=True)
+
+        # Commit changes
+        subprocess.run(["git", "commit", "-m", commit_message], cwd=path_to_repo, check=True)
+
+        return (f"Successfully committed changes with message: {commit_message}")
+    except Exception as e:
+        return (f"Error committing to repository: {e}")
+    
+def clone_git_repo(url_repo: str, output_dir: str):
+    """
+    Clone a Git repository to the specified directory.
+
+    :param url_repo: URL of the repository to clone.
+    :param output_dir: Local directory to clone the repository into.
+    """
+    try:
+        subprocess.run(["git", "clone", url_repo, output_dir], check=True)
+        return (f"Successfully cloned repository from {url_repo} to {output_dir}")
+    except Exception as e:
+        return (f"Error cloning repository: {e}")

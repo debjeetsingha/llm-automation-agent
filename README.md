@@ -1,5 +1,7 @@
 # LLM-based Automation Agent
-
+```
+uv pip compile pyproject.toml -o requirements.txt
+```
 
 ```
 podman build -t $container-name .

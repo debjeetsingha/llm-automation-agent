@@ -31,9 +31,13 @@ RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 # Update PATH environment variable
 ENV PATH="/root/.local/bin/:$PATH"
+RUN apt update && apt install pup unzip \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Copy application files
 COPY . /app/
+RUN pip install -r requirements.txt
 RUN uv sync --frozen
 
 # Start the application

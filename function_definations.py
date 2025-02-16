@@ -95,6 +95,10 @@ class ExtractTextFromImageUsingLLM(BaseModel):
         ...,
         description="Path to the file to write the extracted text. If None, no file will be written.",
     )
+    image_format: str = Field(
+        ...,
+        description='Format of the image (e.g., "jpeg", "png"). Defaults to "jpeg"'
+    )
 
 
 class FindMostSimilarTextsUsingEmbeddings(BaseModel):
@@ -145,7 +149,13 @@ class RunSQLQuery(BaseModel):
 class Execute_shell_command(BaseModel):
     command: str = Field(..., description="Shell commnands to execute in the terminal")
 
+class CommitMessageToGitRepo(BaseModel):
+    commit_message: str = Field(..., description="Message to commit in git repo. Cannot be empty. If no message is provided, default message is '.' ")
+    path_to_repo: str = Field(..., description="{Path to the repository folder}")
 
+class Git_Clone(BaseModel):
+    url_repo: str = Field(..., description="URL of the git repository to clone")
+    output_dir: str = Field(..., description="The directory where the repository will be cloned.")
 tools = [
     pydantic_function_tool(CountTheNumberofDaysAndSave),
     pydantic_function_tool(SortContacts),
@@ -155,6 +165,8 @@ tools = [
     pydantic_function_tool(ExtractTextFromImageUsingLLM),
     pydantic_function_tool(FindMostSimilarTextsUsingEmbeddings),
     pydantic_function_tool(RunSQLQuery),
+    pydantic_function_tool(Git_Clone),
+    pydantic_function_tool(CommitMessageToGitRepo),
     # Very dangerous
     pydantic_function_tool(Execute_shell_command),
 ]
